@@ -16,19 +16,25 @@ const classNames = mergeStyleSets({
 class App extends React.Component {
     constructor() {
         super()
-        const socket = NodeRedWs()
+        const socket = new WebSocket('ws://34.70.173.43:1880/ws/front-end')
 
         this.state = {
             events: []
         }
 
         socket.addEventListener('message', event => {
-            let parsed = JSON.parse(event.data)
-            this.setState({
-                events: [...this.state.events, parsed]
-            })
+            console.log('Received: ', event)
+            try {
+                let parsed = JSON.parse(event.data)
+                if (parsed.key === 'location') {
+                    this.setState({
+                        events: [...this.state.events, parsed]
+                    })
+                }
+            } catch (e) {
+                console.error('Failed to parse event JSON', event)
+            }
         })
-
     }
 
     render() {
