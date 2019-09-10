@@ -23,12 +23,18 @@ class App extends React.Component {
         }
 
         socket.addEventListener('message', event => {
-            let parsed = JSON.parse(event.data)
-            this.setState({
-                events: [...this.state.events, parsed]
-            })
+            console.log('Received: ', event)
+            try {
+                let parsed = JSON.parse(event.data)
+                if (parsed.key === 'location') {
+                    this.setState({
+                        events: [...this.state.events, parsed]
+                    })
+                }
+            } catch (e) {
+                console.error('Failed to parse event JSON', event)
+            }
         })
-
     }
 
     render() {
