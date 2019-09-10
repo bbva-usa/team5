@@ -16,7 +16,7 @@ const classNames = mergeStyleSets({
 class App extends React.Component {
     constructor() {
         super()
-        const socket = NodeRedWs()
+        const socket = new WebSocket('ws://34.70.173.43:1880/ws/front-end')
 
         this.state = {
             events: []
