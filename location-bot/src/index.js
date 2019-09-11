@@ -17,7 +17,7 @@ const makeLocationEmitter = (socket) => ({ lat, lng, busID, timestamp }) => {
 const main = (socket) => {
   const emitLocation = makeLocationEmitter(socket)
 
-  locationStream(mockData, 1000, 20)
+  locationStream(mockData, 500, 20)
     .pipe(
       map(([lat, lng]) => {
         return {
