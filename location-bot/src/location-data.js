@@ -34,7 +34,14 @@ const distance = ([lat1, lng1], [lat2, lng2]) => {
   return R * c;
 }
 
-const lerp = (from, to, t) => from + t * (to - from)
+// Shifts the input away from 0.5, emulating acceleration.
+const pseudoAcceleration = t => {
+  const sign = t >= 0.5 ? 1 : -1
+  const delta = 2 * Math.abs(t - 0.5)
+  return 0.5 + sign * Math.pow(delta, 0.65) / 2
+}
+
+const lerp = (from, to, t) => from + pseudoAcceleration(t) * (to - from)
 
 const lerpCoord = ([lat1, lng1], [lat2, lng2], t) => {
   return [lerp(lat1, lat2, t), lerp(lng1, lng2, t)]
