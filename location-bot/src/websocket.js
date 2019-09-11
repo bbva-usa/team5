@@ -1,26 +1,21 @@
-import io from 'socket.io-client'
+const WebSocketClient = require('websocket').w3cwebsocket
 
-
-export const openWebSocket = (host) => {
-  const socket = io(host, {
-    transports: ['websocket']
-  })
+const openWebSocket = (host) => {
+  const client = new WebSocketClient(host)
   
-  socket.on('connect', () => {
+  client.addEventListener('open', () => {
     console.log('Opened WebSocket connection')
   })
   
-  socket.on('connect_error', (error) => {
-    console.error('Connection error: ', error)
+  client.addEventListener('close', () => {
+    console.error('WebSocket connection closed')
   })
   
-  socket.on('connect_timeout', (timeout) => {
-    console.error('Timed out: ', timeout)
-  })
-  
-  socket.on('error', (error) => {
+  client.addEventListener('error', (error) => {
     console.error('General WebSocket error: ', error)
   })
 
-  return socket
+  return client
 }
+
+module.exports = {openWebSocket}
