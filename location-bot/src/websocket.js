@@ -1,6 +1,6 @@
 const WebSocketClient = require('websocket').w3cwebsocket
 
-const openWebSocket = (host) => {
+const openWebSocket = (host, callback) => {
   const client = new WebSocketClient(host)
   
   client.addEventListener('open', () => {
@@ -9,13 +9,15 @@ const openWebSocket = (host) => {
   
   client.addEventListener('close', () => {
     console.error('WebSocket connection closed')
+    setTimeout(() => openWebSocket(host, callback), 2000)
   })
   
   client.addEventListener('error', (error) => {
     console.error('General WebSocket error: ', error)
+    setTimeout(() => openWebSocket(host, callback), 2000)
   })
 
-  return client
+  callback(client)
 }
 
 module.exports = {openWebSocket}
