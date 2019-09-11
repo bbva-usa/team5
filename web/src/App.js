@@ -1,8 +1,9 @@
 import React from 'react';
 import './App.css';
-import { ActivityItem, Icon, Link, mergeStyleSets } from 'office-ui-fabric-react';
-import { ScrollablePane } from 'office-ui-fabric-react/lib/ScrollablePane';
-import { NodeRedWs } from './wsService'
+import { mergeStyleSets } from 'office-ui-fabric-react';
+import BusMap from './components/BusMap'
+import { riders } from './data/riders'
+const EventEmitter = require('events')
 
 const classNames = mergeStyleSets({
     exampleRoot: {
@@ -16,23 +17,55 @@ const classNames = mergeStyleSets({
 class App extends React.Component {
     constructor() {
         super()
-        const socket = new WebSocket('ws://34.70.173.43:1880/ws/front-end')
+
+        this.dispatcher = new EventEmitter()
 
         this.state = {
-            events: []
+            events: [],
+            riders: []
         }
+
+        this.listenForEvents()
+    }
+
+    listenForEvents() {
+        const socket = new WebSocket('ws://34.70.173.43:1880/ws/front-end')
+
+        socket.addEventListener('open', () => console.log('Connected.'))
 
         socket.addEventListener('message', event => {
             console.log('Received: ', event)
-            try {
-                let parsed = JSON.parse(event.data)
-                if (parsed.key === 'location') {
+
+            let parsed = (() => {
+                try {
+                    return JSON.parse(event.data)
+                } catch (e) {
+                    return null
+                }
+            })()
+
+            switch (parsed.key) {
+                case 'location':
+                    this.dispatcher.emit('location', {
+                        lat: parsed.payload.lat,
+                        lng: parsed.payload.lng
+                    })
                     this.setState({
                         events: [...this.state.events, parsed]
                     })
-                }
-            } catch (e) {
-                console.error('Failed to parse event JSON', event)
+                    break
+                case 'check-in':
+                    let { studentID } = parsed.payload
+                    this.setState({
+                        riders: {
+                            ...this.state.riders,
+                            [studentID]: true
+                        }
+                    })
+                    console.log(this.state.riders)
+                    break
+                default:
+                    console.error('Unknown event', event)
             }
         })
     }
@@ -41,12 +74,37 @@ class App extends React.Component {
         return (
             <div className="App">
 
-                {/* Event list container. */}
-                <div style={{ width: '400px', height: '600px', border: 'dashed black 2px', padding: '10px' }}>
-                    <h2>Live Route Updates</h2>
-                    <div>
-                        {this.state.events.map(event => <pre>{JSON.stringify(event)}</pre>)}
+                <div style={{ height: '500px', width: '100%', display: 'flex' }}>
+                    {/* Route Updates */}
+                    <div style={{ width: '400px', padding: '10px', height: '100%', overflow: 'scroll' }}>
+                        <div style={{ border: 'dashed black 2px' }}>
+                            <h2>Live Route Updates</h2>
+                            <div>
+                                {this.state.events.map((event, idx) => (
+                                    <pre key={idx}>{JSON.stringify(event)}</pre>
+                                ))}
+                            </div>
+                        </div>
                     </div>
+
+                    {/* Realtime Map */}
+                    <div style={{ flexBasis: 2, flexGrow: 3, padding: '10px' }}>
+                        <BusMap dispatcher={this.dispatcher} />
+                    </div>
+                </div>
+
+                {/* Riders List */}
+                <div>
+                    <ul>
+                        {Object.keys(this.state.riders).map((id, idx) => {
+                            let profile = riders[id] || {}
+                            return (
+                                <li key={idx}>
+                                    <img src={profile.image} />
+                                </li>
+                            )
+                        })}
+                    </ul>
                 </div>
 
             </div>
