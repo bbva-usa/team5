@@ -95,7 +95,7 @@ class App extends React.Component {
         return (
             <div className="App" style={{ padding: '20px' }}>
 
-                <h1>Fairfield Schools Bus Portal</h1>
+                <h1>Fairfield Schools Bus Portal (Route One)</h1>
 
                 {/* Riders List */}
                 <div style={{ padding: '30px 10px' }}>
@@ -110,11 +110,10 @@ class App extends React.Component {
                         <div>
                             {this.state.events.map((event, idx) => {
                                 if (event.key === 'check-in') {
-                                    if (Math.random() > .5) {
+                                    if (idx % 2 === 0) {
                                         return <ActivityItem {...arrivalEvt} key={0} className={classNames.exampleRoot} />
-                                    } else {
-                                        return <ActivityItem {...checkInEvt} key={1} className={classNames.exampleRoot} />
                                     }
+                                    return <ActivityItem {...checkInEvt} key={1} className={classNames.exampleRoot} />
                                 }
                             })}
                         </div>

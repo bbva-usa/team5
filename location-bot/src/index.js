@@ -23,7 +23,7 @@ const main = (socket) => {
         return {
           lat,
           lng,
-          busID: 3,
+          busID: 1,
           timestamp: Date.now(),
         }
       }),

@@ -19,7 +19,7 @@ class App extends React.Component {
 
         // Debound check-in requests.
         this.checkIn$.pipe(
-            debounceTime(100)
+            debounceTime(1000)
         ).subscribe((event) => {
             this.webSocket.send(JSON.stringify({
                 key: 'check-in',
